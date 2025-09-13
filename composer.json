@@ -1,0 +1,22 @@
+{
+  "name": "areia-lab/laravel-login-notifier",
+  "description": "Sends notification/email when a user logs in from a new device or IP.",
+  "type": "library",
+  "license": "MIT",
+  "autoload": {
+    "psr-4": {
+      "AreiaLab\\LoginNotifier\\": "src/"
+    }
+  },
+  "require": {
+    "php": ">=8.0",
+    "illuminate/support": "^9.0|^10.0|^11.0"
+  },
+  "extra": {
+    "laravel": {
+      "providers": [
+        "AreiaLab\\LoginNotifier\\LoginNotifierServiceProvider"
+      ]
+    }
+  }
+}
