@@ -4,11 +4,9 @@ namespace AreiaLab\LoginNotifier\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class LoginActivity extends Model
+class LoginHistory extends Model
 {
     protected $fillable = [
-        'user_id',
-        'ip_address',
-        'user_agent',
+        'user_id', 'ip_address', 'device', 'platform', 'browser', 'geo_location'
     ];
 }

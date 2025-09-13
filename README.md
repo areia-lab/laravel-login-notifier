@@ -1,42 +1,45 @@
-# Laravel Login Notifier 🔔
+# Laravel Login Notifier
 
-A Laravel package that **notifies users when they log in from a new device or IP address**.  
-Helps improve account security with minimal setup.
+**Package:** `areia-lab/laravel-login-notifier`
 
----
+Notify users when they log in from a **new device or IP**, log location info, and notify admin.
 
-## 🚀 Installation
+## Installation
 
 ```bash
 composer require areia-lab/laravel-login-notifier
-```
-
-Publish & run migrations:
-
-```bash
+php artisan vendor:publish --tag=login-notifier
 php artisan migrate
 ```
 
----
+## Configuration
 
-## ⚡ Usage
+Edit `config/login-notifier.php`:
 
-Nothing special to configure — it just works! 🎉
+```php
+return [
+    'admin_email' => 'admin@example.com',
+    'notify_user' => true,
+    'notify_admin' => true,
+];
+```
 
-Whenever a user logs in from a **new device/IP**, they will receive an **email notification**.
+## Features
 
----
+- Detect new device/IP logins.
+- Send email notifications to the user.
+- Send alerts to admin.
+- Log device, browser, platform, IP, and geo-location.
+- Fully configurable via config file.
 
-## 🔧 Customization
+## Usage
 
-- Edit the notification class:  
-  `src/Notifications/NewDeviceLoginNotification.php`  
-  to change email text or add more channels (SMS, Slack, etc.).
+Just install and migrate. On every login, the package automatically triggers notifications.
 
-- You can also add extra logic (e.g. log geo-location, send alerts to admin).
+```php
+use Illuminate\Support\Facades\Auth;
 
----
+Auth::attempt(['email' => 'user@example.com', 'password' => 'password']);
+```
 
-## 📜 License
-
-MIT
+Notifications and logging will happen automatically.
