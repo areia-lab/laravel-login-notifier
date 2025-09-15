@@ -8,6 +8,6 @@ class LoginHistory extends Facade
 {
     protected static function getFacadeAccessor(): string
     {
-        return 'login-history-service';
+        return 'login-histories';
     }
 }

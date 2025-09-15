@@ -8,34 +8,73 @@ use Illuminate\Database\Eloquent\Collection;
 class LoginHistoryService
 {
     /**
-     * Get all login histories.
+     * Get all login histories, latest first.
      */
-    public function all(): Collection
+    public function getAllHistories(): Collection
     {
-        return LoginHistory::latest()->get();
+        return LoginHistory::query()
+            ->latest()
+            ->get();
     }
 
     /**
-     * Get login histories for a specific user.
+     * Get all login histories for a specific user.
+     *
+     * @param int $userId
+     * @param int|null $limit Optional number of records
      */
-    public function forUser(int $userId): Collection
+    public function getUserHistories(int $userId, ?int $limit = null): Collection
     {
-        return LoginHistory::where('user_id', $userId)->latest()->get();
+        $query = LoginHistory::where('user_id', $userId)
+            ->latest();
+
+        return $limit ? $query->limit($limit)->get() : $query->get();
     }
 
     /**
-     * Get recent logins (e.g., last X records or new logins).
+     * Get the most recent login histories.
+     *
+     * @param int $limit Number of records to retrieve
      */
-    public function recent(int $limit = 10): Collection
+    public function getRecentHistories(int $limit = 10): Collection
     {
-        return LoginHistory::latest()->limit($limit)->get();
+        return LoginHistory::query()
+            ->latest()
+            ->limit($limit)
+            ->get();
     }
 
     /**
-     * Get last login for a specific user.
+     * Get the last login of a specific user.
      */
-    public function lastForUser(int $userId): ?LoginHistory
+    public function getLastLoginForUser(int $userId): ?LoginHistory
     {
-        return LoginHistory::where('user_id', $userId)->latest()->first();
+        return LoginHistory::where('user_id', $userId)
+            ->latest()
+            ->first();
+    }
+
+    /**
+     * Get logins from new devices or IPs for a specific user.
+     *
+     * @param int $userId
+     */
+    public function getNewDeviceLoginsForUser(int $userId): Collection
+    {
+        $lastLogin = $this->getLastLoginForUser($userId);
+
+        if (!$lastLogin) {
+            return $this->getUserHistories($userId);
+        }
+
+        return LoginHistory::where('user_id', $userId)
+            ->where(function ($query) use ($lastLogin) {
+                $query->where('ip_address', '!=', $lastLogin->ip_address)
+                    ->orWhere('device', '!=', $lastLogin->device)
+                    ->orWhere('platform', '!=', $lastLogin->platform)
+                    ->orWhere('browser', '!=', $lastLogin->browser);
+            })
+            ->latest()
+            ->get();
     }
 }

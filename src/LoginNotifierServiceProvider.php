@@ -13,7 +13,7 @@ class LoginNotifierServiceProvider extends ServiceProvider
     {
         $this->mergeConfigFrom(__DIR__ . '/../config/login-notifier.php', 'login-notifier');
 
-        $this->app->singleton('login-history-service', function ($app) {
+        $this->app->singleton('login-histories', function ($app) {
             return new LoginHistoryService();
         });
     }
