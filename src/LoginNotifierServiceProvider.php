@@ -18,11 +18,17 @@ class LoginNotifierServiceProvider extends ServiceProvider
     {
         $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
 
-        Event::listen(Login::class, LoginListener::class);
+        // Register the login event listener
+        Event::listen(Login::class, [LoginListener::class, 'handle']);
 
+        // Publish config file
         $this->publishes([
             __DIR__ . '/config/login-notifier.php' => config_path('login-notifier.php'),
+        ], 'login-notifier-config');
+
+        // Publish migrations
+        $this->publishes([
             __DIR__ . '/../database/migrations/' => database_path('migrations'),
-        ], 'login-notifier-assets');
+        ], 'login-notifier-migrations');
     }
 }
