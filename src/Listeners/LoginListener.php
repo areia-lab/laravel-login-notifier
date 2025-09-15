@@ -7,8 +7,8 @@ use AreiaLab\LoginNotifier\Models\LoginHistory;
 use AreiaLab\LoginNotifier\Notifications\UserLoginAlert;
 use AreiaLab\LoginNotifier\Notifications\AdminLoginAlert;
 use Illuminate\Support\Facades\Notification;
-use Jenssegers\Agent\Agent;
 use Stevebauman\Location\Facades\Location;
+use Jenssegers\Agent\Agent;
 
 class LoginListener
 {

@@ -2,13 +2,17 @@
 
 namespace AreiaLab\LoginNotifier\Notifications;
 
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Notification;
 use Illuminate\Notifications\Messages\MailMessage;
 use AreiaLab\LoginNotifier\Models\LoginHistory;
+use Illuminate\Bus\Queueable;
 use Illuminate\Foundation\Auth\User;
 
-class AdminLoginAlert extends Notification
+class AdminLoginAlert extends Notification implements ShouldQueue
 {
+    use Queueable;
+
     protected $user;
     protected $login;
 
