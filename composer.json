@@ -1,19 +1,37 @@
 {
     "name": "areia-lab/laravel-login-notifier",
-    "description": "Notify users when login from a new device or IP",
+    "description": "Laravel package to notify users of logins from new devices or IP addresses for enhanced security.",
     "type": "library",
     "license": "MIT",
+    "keywords": [
+        "laravel",
+        "login",
+        "security",
+        "notifier",
+        "login-notification",
+        "device-detection",
+        "ip-detection",
+        "2fa",
+        "user-authentication",
+        "account-protection"
+    ],
     "authors": [
         {
             "name": "Areia Lab",
-            "email": "support@areiatech.com"
+            "email": "support@areiatech.com",
+            "homepage": "https://areiatech.com",
+            "role": "Owner"
         }
     ],
+    "support": {
+        "issues": "https://github.com/areia-lab/laravel-login-notifier/issues",
+        "source": "https://github.com/areia-lab/laravel-login-notifier"
+    },
     "require": {
         "php": "^8.1",
         "illuminate/support": "^10.0",
         "illuminate/notifications": "^10.0",
-        "jenssegers/agent":"^2.6",
+        "jenssegers/agent": "^2.6",
         "stevebauman/location": "^7.0"
     },
     "autoload": {
@@ -27,5 +45,7 @@
                 "AreiaLab\\LoginNotifier\\LoginNotifierServiceProvider"
             ]
         }
-    }
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
 }

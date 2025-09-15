@@ -17,6 +17,17 @@ A Laravel package to **monitor user logins**, detect **new devices or IP address
 
 ---
 
+## Requirements
+
+This package requires the following:
+
+- **PHP** `^8.1`
+- **Laravel** `^10.0`
+- **jenssegers/agent** `^2.6` – device & browser detection
+- **stevebauman/location** `^7.0` – IP geolocation lookup
+
+---
+
 ## Installation
 
 ```bash
@@ -28,6 +39,7 @@ Publish the configuration and migration files:
 ```bash
 php artisan vendor:publish --tag=login-notifier-config
 php artisan vendor:publish --tag=login-notifier-migrations
+
 php artisan migrate
 ```
 
@@ -41,14 +53,13 @@ Edit the published config file `config/login-notifier.php`:
 
 ```php
 return [
+    'notify_user' => env('LOGIN_NOTIFIER_NOTIFY_USER', true),
+
     // Email address to receive admin notifications
-    'admin_email' => 'admin@example.com',
+    'notify_admin' => env('LOGIN_NOTIFIER_NOTIFY_ADMIN', true),
+    'admin_email' => env('LOGIN_NOTIFIER_ADMIN_EMAIL', 'admin@example.com'),
 
-    // Notify user on login from new device or IP
-    'notify_user' => true,
-
-    // Notify admin on every login
-    'notify_admin' => true,
+    'secure_url' => env('LOGIN_NOTIFIER_SECURE_URL', 'forgot-password'),
 ];
 ```
 
