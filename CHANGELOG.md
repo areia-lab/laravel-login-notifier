@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [V1.0.1] Fixed Installation Problem - 2025-09-15
+
+### Bug Fixed and Requirement Changed
+
+- Installation Bug Fixed **Requirement Updated**
+
 ---
 
 ## [V1.0.0] Initial Stable Release - 2025-09-15
