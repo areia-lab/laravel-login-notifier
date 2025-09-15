@@ -11,7 +11,8 @@
             --card: #0b1220;
             --muted: #94a3b8;
             --accent: #7c3aed;
-            --text: #e6eef8
+            --text: #e6eef8;
+            --link: #7c3aed;
         }
 
         body {
@@ -19,7 +20,7 @@
             line-height: 1.6;
             margin: 0;
             background: linear-gradient(180deg, #081026 0%, #021026 100%);
-            color: var(--text)
+            color: var(--text);
         }
 
         .wrap {
@@ -28,17 +29,17 @@
             padding: 28px;
             background: rgba(255, 255, 255, 0.03);
             border-radius: 12px;
-            box-shadow: 0 6px 30px rgba(2, 6, 23, 0.6)
+            box-shadow: 0 6px 30px rgba(2, 6, 23, 0.6);
         }
 
         h1 {
             font-size: 28px;
-            margin: 0 0 6px
+            margin: 0 0 6px;
         }
 
         p.lead {
             color: var(--muted);
-            margin-top: 0
+            margin-top: 0;
         }
 
         pre {
@@ -46,19 +47,25 @@
             padding: 14px;
             border-radius: 8px;
             overflow: auto;
-            color: #cfe8ff
+            color: #cfe8ff;
         }
 
         code {
-            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;
         }
 
         h2 {
-            margin-top: 26px
+            margin-top: 26px;
         }
 
-        ul {
-            margin-top: 6px
+        h3,
+        h4 {
+            margin-top: 18px;
+        }
+
+        ul,
+        ol {
+            margin-top: 6px;
         }
 
         .note {
@@ -66,19 +73,22 @@
             border-left: 4px solid rgba(124, 58, 237, 0.9);
             padding: 10px;
             border-radius: 6px;
-            color: #dfe7ff
+            color: #dfe7ff;
         }
 
         .grid {
             display: grid;
             grid-template-columns: 1fr 300px;
-            gap: 20px
+            gap: 20px;
         }
 
         .sidebar {
             padding: 12px;
             background: rgba(255, 255, 255, 0.02);
-            border-radius: 8px
+            border-radius: 8px;
+            position: sticky;
+            top: 24px;
+            height: fit-content;
         }
 
         a.btn {
@@ -87,26 +97,34 @@
             border-radius: 8px;
             background: linear-gradient(90deg, var(--accent), #5b21b6);
             color: white;
-            text-decoration: none
+            text-decoration: none;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 8px
+            margin-top: 8px;
         }
 
         td,
         th {
             padding: 8px;
             border-bottom: 1px solid rgba(255, 255, 255, 0.03);
-            text-align: left
+            text-align: left;
         }
 
         footer {
             color: var(--muted);
             font-size: 13px;
-            margin-top: 22px
+            margin-top: 22px;
+        }
+
+        .related-features li {
+            margin-bottom: 6px;
+        }
+
+        .sidebar h4 {
+            color: var(--accent);
         }
     </style>
 </head>
@@ -116,7 +134,7 @@
         <header>
             <h1>Areia Lab — Laravel Login Notifier</h1>
             <p class="lead">Package: <code>areia-lab/laravel-login-notifier</code> — Notify users & admins when a login
-                occurs from a <strong>new device or IP</strong>. Logs device, browser, platform, IP and optional
+                occurs from a <strong>new device or IP</strong>. Logs device, browser, platform, IP, and optional
                 geo-location.</p>
         </header>
 
@@ -124,7 +142,7 @@
             <main>
                 <section>
                     <h2>Quick Install</h2>
-                    <p>Install the package (once published on Packagist or via VCS):</p>
+                    <p>Install the package (via Packagist or VCS):</p>
                     <pre><code>composer require areia-lab/laravel-login-notifier
 # publish config + migration
 php artisan vendor:publish --tag=login-notifier
@@ -136,17 +154,16 @@ php artisan migrate</code></pre>
                 <section>
                     <h2>What it does</h2>
                     <ul>
-                        <li>On <code>Illuminate\Auth\Events\Login</code>, captures IP, device, platform and browser
-                            using <code>jenssegers/agent</code>.</li>
-                        <li>Optionally attempts geo-location when <code>stevebauman/location</code> is installed.</li>
-                        <li>Stores a row in <code>login_histories</code> and sends an email to the user when the
-                            IP/device differs from the user's last login.</li>
-                        <li>Optionally notifies an admin email address.</li>
+                        <li>Captures IP, device, platform, and browser using <code>jenssegers/agent</code>.</li>
+                        <li>Optionally attempts geo-location with <code>stevebauman/location</code>.</li>
+                        <li>Stores a row in <code>login_histories</code> and sends a notification if the IP/device is
+                            new.</li>
+                        <li>Notifies an admin email if configured.</li>
                     </ul>
                 </section>
 
                 <section>
-                    <h2>Files & structure</h2>
+                    <h2>Files & Structure</h2>
                     <pre><code>laravel-login-notifier/
 ├─ composer.json
 ├─ README.md
@@ -161,19 +178,18 @@ php artisan migrate</code></pre>
 
                 <section>
                     <h2>Configuration</h2>
-                    <p>After publishing, edit <code>config/login-notifier.php</code>:</p>
                     <pre><code>return [
     'admin_email' => env('LOGIN_NOTIFIER_ADMIN_EMAIL', 'admin@example.com'),
     'notify_user' => true,
     'notify_admin' => true,
+    'secure_url' => 'forgot-password',
 ];</code></pre>
-
-                    <p>You can disable user or admin notifications by setting the flags to <code>false</code>.</p>
+                    <p>Toggle notifications by setting the flags to <code>false</code>.</p>
                 </section>
 
                 <section>
                     <h2>Database Migration</h2>
-                    <p>The package ships with a migration that creates <code>login_histories</code>:</p>
+                    <p>Creates <code>login_histories</code>:</p>
                     <pre><code>Schema::create('login_histories', function (Blueprint $table) {
     $table->id();
     $table->foreignId('user_id')->constrained()->cascadeOnDelete();
@@ -187,18 +203,14 @@ php artisan migrate</code></pre>
                 </section>
 
                 <section>
-                    <h2>Listener behaviour</h2>
-                    <p>The listener attaches to the <code>Login</code> event and performs these steps:</p>
+                    <h2>Listener Behaviour</h2>
                     <ol>
                         <li>Collect IP and agent info.</li>
-                        <li>Attempt geo-location only if the <code>stevebauman/location</code> facade exists.</li>
-                        <li>Compare with the last login row for the user to determine whether this is a new device/IP.
-                        </li>
-                        <li>Persist the new login row and send notifications accordingly.</li>
+                        <li>Attempt geo-location if <code>stevebauman/location</code> is installed.</li>
+                        <li>Compare with last login to detect new device/IP.</li>
+                        <li>Persist new login and send notifications accordingly.</li>
                     </ol>
-
-                    <h3>Safe geo-location (optional)</h3>
-                    <pre><code>// inside the listener
+                    <pre><code>// Safe geo-location inside listener
 $geo = null;
 if (class_exists(\Stevebauman\Location\Facades\Location::class)) {
     try {
@@ -212,21 +224,14 @@ if (class_exists(\Stevebauman\Location\Facades\Location::class)) {
 
                 <section>
                     <h2>Notifications</h2>
-                    <p>The package includes two mail notifications:</p>
                     <ul>
-                        <li><code>UserLoginAlert</code> — informs the user about a new-device/IP login with IP, device
-                            and location.</li>
-                        <li><code>AdminLoginAlert</code> — sends a summary email to the admin email configured in
-                            <code>login-notifier.php</code>.
-                        </li>
+                        <li><code>UserLoginAlert</code> — informs the user about a new device/IP login.</li>
+                        <li><code>AdminLoginAlert</code> — summary email to admin email.</li>
                     </ul>
-
-                    <p>The notifications use Laravel's <code>mail</code> channel. Make sure mail is configured in your
-                        application (SMTP, Mailgun, etc.).</p>
                 </section>
 
                 <section>
-                    <h2>Optional packages</h2>
+                    <h2>Optional Packages</h2>
                     <table>
                         <thead>
                             <tr>
@@ -243,77 +248,33 @@ if (class_exists(\Stevebauman\Location\Facades\Location::class)) {
                             </tr>
                             <tr>
                                 <td><code>stevebauman/location</code></td>
-                                <td>Resolve geo location from IP (optional)</td>
+                                <td>Resolve geo-location from IP (optional)</td>
                                 <td><code>composer require stevebauman/location</code></td>
                             </tr>
                         </tbody>
                     </table>
-
-                    <p class="note">If you want automatic installation of these dependencies, add them to your package
-                        <code>composer.json</code> <strong>require</strong> block. Otherwise the listener will work
-                        without geo-location.
-                    </p>
                 </section>
 
                 <section>
-                    <h2>Customization & Extensibility</h2>
-                    <ul>
-                        <li><strong>Change detection logic:</strong> Modify the listener's comparison to include device
-                            strings, browser or a fingerprint instead of just IP.</li>
-                        <li><strong>Multiple notifications:</strong> Use additional channels (SMS, Slack) by
-                            implementing their notification channels.</li>
-                        <li><strong>Events:</strong> You can dispatch a custom event after creating
-                            <code>LoginHistory</code> for other apps to hook into.
-                        </li>
-                    </ul>
-
-                    <pre><code>// Example: dispatch custom event
-use App\Events\UserLoggedInDifferentDevice;
-
-// after creating $loginHistory
-event(new UserLoggedInDifferentDevice($user, $loginHistory));</code></pre>
-                </section>
-
-                <section>
-                    <h2>Testing</h2>
-                    <p>Suggested tests:</p>
-                    <ul>
-                        <li>Assert that a login from the same IP does not trigger a notification.</li>
-                        <li>Assert that a login from a new IP triggers <code>UserLoginAlert</code>.</li>
-                        <li>Mock the <code>stevebauman/location</code> responses when testing geo-location behavior.
-                        </li>
-                    </ul>
-
-                    <pre><code>// Example PHPUnit-ish
-public function test_new_ip_triggers_notification()
-{
-    Notification::fake();
-
-    // create user & simulate login event with different IP
-    // assert Notification::sent(UserLoginAlert::class)
-}
-</code></pre>
-                </section>
-
-                <section>
-                    <h2>Troubleshooting</h2>
-                    <ul>
-                        <li><strong>Mail not sent:</strong> Verify <code>MAIL_*</code> env vars and queue configuration.
-                        </li>
-                        <li><strong>Geo-location null:</strong> Ensure <code>stevebauman/location</code> is installed
-                            and configured or accept <code>null</code> fallback.</li>
-                        <li><strong>Listener not firing:</strong> Ensure the service provider is registered (it is
-                            auto-discovered when installed via Composer) and that
-                            <code>Event::listen(Login::class,...)</code> executed (clear cache if needed).
-                        </li>
+                    <h2>Related Features</h2>
+                    <ul class="related-features">
+                        <li>Facade: <code>LoginHistory</code> for fetching all, recent, or user-specific login
+                            histories.</li>
+                        <li>Custom events: Dispatch <code>UserLoggedInDifferentDevice</code> after login history
+                            creation.</li>
+                        <li>Queueable notifications for production-ready email sending.</li>
+                        <li>Secure account link <code>secure_url</code> for user to reset password if suspicious
+                            activity is detected.</li>
+                        <li>Optional multiple channels (SMS, Slack) via Laravel Notification channels.</li>
                     </ul>
                 </section>
 
                 <section>
-                    <h2>Changelog</h2>
+                    <h2>Testing & Troubleshooting</h2>
                     <ul>
-                        <li><strong>v0.1.0</strong> — Initial release: login tracking, new-device detection, user +
-                            admin emails, optional geo-location support.</li>
+                        <li>Ensure mail is configured properly to send notifications.</li>
+                        <li>Mock geo-location for consistent test results.</li>
+                        <li>Listener must be registered; clear cache if it doesn’t fire.</li>
                     </ul>
                 </section>
 
@@ -323,19 +284,22 @@ public function test_new_ip_triggers_notification()
             </main>
 
             <aside class="sidebar">
-                <h3>Quick links</h3>
+                <h3>Quick Links</h3>
                 <ul>
-                    <li><a class="btn" href="#">Installation</a></li>
-                    <li style="margin-top:8px"><a class="btn" href="#">Configuration</a></li>
+                    <li><a class="btn" href="#quick-install">Installation</a></li>
+                    <li><a class="btn" href="#configuration">Configuration</a></li>
+                    <li><a class="btn" href="#notifications">Notifications</a></li>
+                    <li><a class="btn" href="#related-features">Related Features</a></li>
                 </ul>
 
-                <h4 style="margin-top:18px">Config example</h4>
+                <h4>Config Example</h4>
                 <pre><code>admin_email: admin@example.com
 notify_user: true
-notify_admin: true</code></pre>
+notify_admin: true
+secure_url: forgot-password</code></pre>
 
-                <h4 style="margin-top:18px">Support</h4>
-                <p class="note">Open an issue on your repository or contact the package author for help.</p>
+                <h4>Support</h4>
+                <p class="note">Open an issue on GitHub or contact the package author for help.</p>
             </aside>
         </div>
     </div>

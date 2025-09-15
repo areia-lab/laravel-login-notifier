@@ -12,37 +12,112 @@ use Stevebauman\Location\Facades\Location;
 
 class LoginListener
 {
-    public function handle(Login $event)
+    public function handle(Login $event): void
     {
         $user = $event->user;
         $ip = request()->ip();
+
+        // Gather device/browser/platform info
+        [$device, $platform, $browser] = $this->getAgentDetails();
+
+        // Try resolving geo location safely
+        $geo = $this->getGeoLocation($ip);
+
+        // Determine if it's a new device or location
+        $lastLogin = $this->getLastLogin($user->id);
+        $isNewDevice = $this->isNewDevice($lastLogin, $ip, $device, $platform, $browser);
+
+        // Store login history
+        $loginHistory = $this->storeLoginHistory($user->id, $ip, $device, $platform, $browser, $geo);
+
+        // Send notifications
+        $this->notifyUserIfNeeded($user, $loginHistory, $isNewDevice);
+        $this->notifyAdminIfNeeded($user, $loginHistory);
+    }
+
+    /**
+     * Get device, platform, and browser from user agent.
+     */
+    protected function getAgentDetails(): array
+    {
         $agent = new Agent();
-        $device = $agent->device();
-        $platform = $agent->platform();
-        $browser = $agent->browser();
+        return [
+            $agent->device() ?? 'Unknown Device',
+            $agent->platform() ?? 'Unknown Platform',
+            $agent->browser() ?? 'Unknown Browser',
+        ];
+    }
 
-        $location = @Location::get($ip);
-        $geo = $location ? $location->cityName . ', ' . $location->countryName : null;
+    /**
+     * Resolve the geolocation for an IP address.
+     */
+    protected function getGeoLocation(string $ip): ?string
+    {
+        try {
+            $location = Location::get($ip);
+            return $location ? trim(($location->cityName ?? '') . ', ' . ($location->countryName ?? '')) : null;
+        } catch (\Throwable $e) {
+            return null; // fail gracefully in production
+        }
+    }
 
-        $lastLogin = LoginHistory::where('user_id', $user->id)->latest()->first();
+    /**
+     * Fetch the last login entry for a user.
+     */
+    protected function getLastLogin(int $userId): ?LoginHistory
+    {
+        return LoginHistory::where('user_id', $userId)->latest()->first();
+    }
 
-        $isNewDevice = !$lastLogin || $lastLogin->ip_address !== $ip;
-
-        $loginHistory = LoginHistory::create([
-            'user_id' => $user->id,
-            'ip_address' => $ip,
-            'device' => $device,
-            'platform' => $platform,
-            'browser' => $browser,
-            'geo_location' => $geo,
-        ]);
-
-        if ($isNewDevice && config('login-notifier.notify_user')) {
-            $user->notify(new UserLoginAlert($loginHistory));
+    /**
+     * Check if the login is from a new device or location.
+     */
+    protected function isNewDevice(?LoginHistory $lastLogin, string $ip, string $device, string $platform, string $browser): bool
+    {
+        if (!$lastLogin) {
+            return true;
         }
 
-        if (config('login-notifier.notify_admin') && config('login-notifier.admin_email')) {
-            Notification::route('mail', config('login-notifier.admin_email'))
+        return $lastLogin->ip_address !== $ip
+            || $lastLogin->device !== $device
+            || $lastLogin->platform !== $platform
+            || $lastLogin->browser !== $browser;
+    }
+
+    /**
+     * Store a new login history record.
+     */
+    protected function storeLoginHistory(int $userId, string $ip, string $device, string $platform, string $browser, ?string $geo): LoginHistory
+    {
+        return LoginHistory::create([
+            'user_id'     => $userId,
+            'ip_address'  => $ip,
+            'device'      => $device,
+            'platform'    => $platform,
+            'browser'     => $browser,
+            'geo_location' => $geo,
+        ]);
+    }
+
+    /**
+     * Notify the user if enabled and login is from a new device.
+     */
+    protected function notifyUserIfNeeded($user, LoginHistory $loginHistory, bool $isNewDevice): void
+    {
+        if ($isNewDevice && config('login-notifier.notify_user', true)) {
+            $user->notify(new UserLoginAlert($loginHistory));
+        }
+    }
+
+    /**
+     * Notify the admin if enabled in config.
+     */
+    protected function notifyAdminIfNeeded($user, LoginHistory $loginHistory): void
+    {
+        $adminEmail = config('login-notifier.admin_email');
+
+        if (config('login-notifier.notify_admin', false) && $adminEmail) {
+            Notification::route('mail', $adminEmail)
                 ->notify(new AdminLoginAlert($user, $loginHistory));
         }
     }
