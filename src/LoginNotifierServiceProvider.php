@@ -11,7 +11,11 @@ class LoginNotifierServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
-        $this->mergeConfigFrom(__DIR__ . '/config/login-notifier.php', 'login-notifier');
+        $this->mergeConfigFrom(__DIR__ . '/../config/login-notifier.php', 'login-notifier');
+
+        $this->app->singleton('login-history-service', function ($app) {
+            return new LoginHistoryService();
+        });
     }
 
     public function boot(): void
@@ -23,7 +27,7 @@ class LoginNotifierServiceProvider extends ServiceProvider
 
         // Publish config file
         $this->publishes([
-            __DIR__ . '/config/login-notifier.php' => config_path('login-notifier.php'),
+            __DIR__ . '/../config/login-notifier.php' => config_path('login-notifier.php'),
         ], 'login-notifier-config');
 
         // Publish migrations
