@@ -28,9 +28,8 @@
         "source": "https://github.com/areia-lab/laravel-login-notifier"
     },
     "require": {
-        "php": "^8.1",
-        "illuminate/support": "^10.0",
-        "illuminate/notifications": "^10.0",
+        "php": "^8.0",
+        "illuminate/support": "^10.0|^11.0|^12.0",
         "jenssegers/agent": "^2.6",
         "stevebauman/location": "^7.0"
     },
